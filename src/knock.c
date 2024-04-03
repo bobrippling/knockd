@@ -35,7 +35,7 @@
 #include <getopt.h>
 #include <fcntl.h>
 
-static char version[] = "0.8";
+static char version[] = "0.9";
 
 #define PROTO_TCP 1
 #define PROTO_UDP 2

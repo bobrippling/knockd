@@ -1,5 +1,6 @@
 VERSION         DESCRIPTION
 -----------------------------------------------------------------------------
+0.9           - Permit ignoring duplicate packets.
 0.8           - Multiple fixes (#67, #77)
               - IPv6 support (Sebastien Valat)
 0.7.8         - Fix for Issue #33, #34 and #35 contributed by Alexander

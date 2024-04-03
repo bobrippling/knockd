@@ -97,6 +97,7 @@ typedef struct opendoor {
 	FILE *one_time_sequences_fd;
 	char *pcap_filter_exp;
 	char *pcap_filter_expv6;
+	int allowdupes;
 } opendoor_t;
 PMList *doors = NULL;
 
@@ -624,6 +625,7 @@ int parseconfig(char *configfile)
 				door->one_time_sequences_fd = NULL;
 				door->pcap_filter_exp = NULL;
 				door->pcap_filter_expv6 = NULL;
+				door->allowdupes = 0;
 				doors = list_add(doors, door);
 			}
 		} else {
@@ -644,6 +646,14 @@ int parseconfig(char *configfile)
 				if(!strcmp(key, "USESYSLOG")) {
 					o_usesyslog = 1;
 					dprint("config: usesyslog\n");
+				} else if(!strcmp(key, "ALLOWDUPES")) {
+					if(door == NULL) {
+						fprintf(stderr, "config: line %d: \"%s\" can only be used within a Door section\n",
+								linenum, key);
+						return(1);
+					}
+					door->allowdupes = 1;
+					dprint("config: %s: allowdupes: %d\n", door->name, door->allowdupes);
 				} else {
 					fprintf(stderr, "config: line %d: syntax error\n", linenum);
 					return(1);
@@ -1829,7 +1839,8 @@ void sniff(u_char* arg, const struct pcap_pkthdr* hdr, const u_char* packet)
 				 * ... unless it matches a previous stage, in which case assume it's a dupe and ignore
 				 */
 
-				if(attempt->stage > 0 &&
+				if(attempt->door->allowdupes &&
+						attempt->stage > 0 &&
 						ip_proto == attempt->door->protocol[attempt->stage - 1] &&
 						dport == attempt->door->sequence[attempt->stage - 1]) {
 					dprint("got attempt, ip %s, matching previous stage - assuming duplicate packet\n", attempt->src);

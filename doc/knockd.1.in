@@ -196,6 +196,13 @@ interfere with (and thus invalidate) the knock.
 Separate multiple flags with commas (eg, TCPFlags = syn,ack,urg).  Flags can be
 explicitly excluded by a "!" (eg, TCPFlags = syn,!ack).
 .TP
+.B "AllowDupes"
+Ignore packets (that is, don't invalidate the entire knock), if the packet is a
+duplicate of the sequence stage we've just seen. This may be the case if our
+firewall is configured to drop packets (rather than respond with a rst), so we
+may receive multiple/duplicate TCP syn packets from the knocker, for a single
+stage.
+.TP
 .B "Target = <ip-address>"
 Use the specified IP address instead of the address determined for the
 \fBInterface\fP when matching the \fBSequence\fP.

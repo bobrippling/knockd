@@ -1825,8 +1825,17 @@ void sniff(u_char* arg, const struct pcap_pkthdr* hdr, const u_char* packet)
 			} else {
 				/* invalidate the knock sequence, it will be removed in the
 				 * next sniff() call.
+				 *
+				 * ... unless it matches a previous stage, in which case assume it's a dupe and ignore
 				 */
-				attempt->stage = -1;
+
+				if(attempt->stage > 0 &&
+						ip_proto == attempt->door->protocol[attempt->stage - 1] &&
+						dport == attempt->door->sequence[attempt->stage - 1]) {
+					dprint("got attempt, ip %s, matching previous stage - assuming duplicate packet\n", attempt->src);
+				} else {
+					attempt->stage = -1;
+				}
 			}
 		} else {
 			/* did they hit the first port correctly? */
